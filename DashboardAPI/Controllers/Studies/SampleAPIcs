@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using DashboardAPI.Data;
+using DashboardAPI.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace DashboardAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SampleAPIcs : ControllerBase
+    {
+        private DashboardDbContext _dashboardDbContext;
+
+        public SampleAPIcs(DashboardDbContext dashboardDbContext)
+        {
+            _dashboardDbContext = dashboardDbContext;
+        }
+
+        // GET: api/Vehicles
+        [HttpGet]
+        public IActionResult Get()
+        {
+            //return _dashboardDbContext.Vehicles;
+            return Ok(_dashboardDbContext.Vehicles);
+            //return StatusCode(StatusCodes.Status200OK);
+        }
+
+        // GET api/Vehicles/5
+        [HttpGet("{id}", Name = "Get")]
+        public IActionResult Get(int id)
+        {
+            var vehicle = _dashboardDbContext.Vehicles.Find(id);
+            if (vehicle == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(vehicle);
+        }
+
+        //GET : api/Vehicles/Test/5
+        [HttpGet("[action]/{id}")]
+        public int Test(int Id)
+        {
+            return Id;
+        }
+
+        // POST api/Vehicles
+        [HttpPost]
+        public IActionResult Post([FromBody] Vehicle vehicle)
+        {
+            _dashboardDbContext.Vehicles.Add(vehicle);
+            _dashboardDbContext.SaveChanges();
+            return StatusCode(StatusCodes.Status201Created);
+        }
+
+        // PUT api/Vehicle/5
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] Vehicle vehicle)
+        {
+            var entity = _dashboardDbContext.Vehicles.Find(id);
+            if (entity == null)
+            {
+                return NotFound("Este ID não existe no banco de dados.");
+            }
+            else
+            {
+                entity.Title = vehicle.Title;
+                entity.Price = vehicle.Price;
+                entity.Color = vehicle.Color;
+                _dashboardDbContext.SaveChanges();
+                return Ok("Dados Alterados");
+            }
+        }
+
+        // DELETE api/Vehicles/5
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var vehicle = _dashboardDbContext.Vehicles.Find(id);
+            _dashboardDbContext.Vehicles.Remove(vehicle);
+            return Ok("Registro excluido");
+        }
+    }
+}
